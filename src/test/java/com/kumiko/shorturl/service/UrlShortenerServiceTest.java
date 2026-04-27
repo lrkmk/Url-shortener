@@ -19,7 +19,8 @@ public class UrlShortenerServiceTest {
     SnowflakeIdGenerator snowflakeIdGenerator = mock(SnowflakeIdGenerator.class);
     StringRedisTemplate stringRedisTemplate = mock(StringRedisTemplate.class);
     ValueOperations<String, String> valueOps = mock(ValueOperations.class);
-    UrlShortenerService urlShortenerService = new UrlShortenerService(urlMappingRepository, snowflakeIdGenerator, stringRedisTemplate);
+    BloomFilterService bloomFilterService = mock(BloomFilterService.class);
+    UrlShortenerService urlShortenerService = new UrlShortenerService(urlMappingRepository, snowflakeIdGenerator, stringRedisTemplate, bloomFilterService);
 
     @Test
     void testShortenUrl() {

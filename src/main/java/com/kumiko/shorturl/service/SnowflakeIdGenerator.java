@@ -1,5 +1,6 @@
 package com.kumiko.shorturl.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +24,7 @@ public class SnowflakeIdGenerator {
 
     private final LongSupplier clock;
 
+    @Autowired
     public SnowflakeIdGenerator(@Value("${snowflake.machine-id}") long machineId) {
         this(machineId, System::currentTimeMillis);
     }
