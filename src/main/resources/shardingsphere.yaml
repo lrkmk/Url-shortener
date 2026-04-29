@@ -1,0 +1,28 @@
+mode:
+  type: Standalone
+
+dataSources:
+  ds:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    jdbcUrl: jdbc:mysql://localhost:3306/shorturl?useSSL=false&serverTimezone=UTC
+    username: root
+    password: root
+
+rules:
+  - !SHARDING
+    tables:
+      url_mapping:
+        actualDataNodes: ds.url_mapping_$->{0..3}
+        tableStrategy:
+          standard:
+            shardingColumn: short_code
+            shardingAlgorithmName: url-inline
+    shardingAlgorithms:
+      url-inline:
+        type: HASH_MOD
+        props:
+          sharding-count: '4'
+
+props:
+  sql-show: true
