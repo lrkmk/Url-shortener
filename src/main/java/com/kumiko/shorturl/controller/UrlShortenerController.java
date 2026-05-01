@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.Map;
 
 @RestController
 @RequestMapping("url")
@@ -35,5 +36,10 @@ public class UrlShortenerController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/{shortCode}/stats")
+    public ResponseEntity<Map<String, Long>> getAccessCount(@PathVariable String shortCode) {
+        long count = urlShortenerService.getAccessCount(shortCode);
+        return  ResponseEntity.ok(Map.of("access_count", count));
+    }
 
 }

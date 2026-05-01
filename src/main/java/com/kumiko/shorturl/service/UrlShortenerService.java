@@ -2,6 +2,7 @@ package com.kumiko.shorturl.service;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.kumiko.shorturl.exception.UrlNotFoundException;
 import com.kumiko.shorturl.util.ShardRouter;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +57,7 @@ public class UrlShortenerService {
 
     public String getLongUrlFromShortCode(String shortCode) {
         if (!bloomFilterService.mightContain(shortCode)) {
-            throw new RuntimeException("no url mapping with the given short code found");
+            throw new UrlNotFoundException("no url mapping with the given short code found");
         }
 
         String value = localCache.getIfPresent(shortCode);
@@ -86,7 +87,7 @@ public class UrlShortenerService {
             accessLogProducer.send(shortCode);
             return longUrl;
         } else {
-            throw new RuntimeException("no url mapping with the given short code found");
+            throw new UrlNotFoundException("no url mapping with the given short code found");
         }
     }
 
@@ -101,5 +102,18 @@ public class UrlShortenerService {
             localCache.invalidate(shortCode);
             stringRedisTemplate.delete(shortCode);
         }, CompletableFuture.delayedExecutor(500, TimeUnit.MILLISECONDS));
+    }
+
+    public long getAccessCount(String shortCode) {
+        if (!bloomFilterService.mightContain(shortCode)) {
+            throw new UrlNotFoundException("no url with given short code exists");
+        }
+
+        String tableName = ShardRouter.getTableName(shortCode);
+        List<Long> count = jdbcTemplate.query("SELECT access_count FROM " + tableName + " WHERE short_code = ?", (rs, rownum) -> rs.getLong("access_count"), shortCode);
+        if (count.isEmpty()) {
+            throw new UrlNotFoundException("no access count for the given short code");
+        }
+        return count.get(0);
     }
 }

@@ -31,7 +31,7 @@ public class RateLimiterService {
                 rateLimitScript,
                 List.of("rate_limit:" + ip),
                 "1",
-                "20"
+                "10000"
                 );
         return Long.valueOf(1L).equals(result);
     }
